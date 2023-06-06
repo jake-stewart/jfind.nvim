@@ -49,13 +49,13 @@ local function findFile()
 
     local vpad = ternary(vim.o.laststatus > 1, 2, 1)
 
-    if vim.o.columns > config.max_width then
+    if vim.o.columns > config.maxWidth then
         width = ternary(
-            vim.o.columns % 2, config.max_width - 1, config.max_width
+            vim.o.columns % 2, config.maxWidth - 1, config.maxWidth
         )
-        if vim.o.lines > config.max_height then
+        if vim.o.lines > config.maxHeight then
             height = ternary(
-                vim.o.lines % 2, config.max_height - 1, config.maxHeight
+                vim.o.lines % 2, config.maxHeight - 1, config.maxHeight
             )
             border = config.border
             col = (ui.width/2) - (width/2) - 1
