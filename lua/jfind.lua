@@ -74,7 +74,7 @@ local function findFile()
 end
 
 local function findFileTmux()
-    if not vim.cmd.executable("jfind") then
+    if not vim.fn.executable("jfind") then
         vim.cmd.echoerr("jfind is not installed. " .. jfindGithubUrl)
         return
     end
