@@ -3,8 +3,8 @@
 client_width=$(tmux display -p "#{client_width}")
 client_height=$(tmux display -p "#{client_height}")
 
-max_width=120
-max_height=28
+max_width=$1
+max_height=$2
 
 fullscreen() {
     width=$client_width
@@ -30,4 +30,4 @@ tmux display-popup \
     -E \
     -d "$(pwd)" \
     $border \
-    "$1"
+    "$3"
