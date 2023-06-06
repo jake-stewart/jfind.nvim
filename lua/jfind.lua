@@ -12,8 +12,8 @@ local function onExit(window, status)
     end
 end
 
-local function setExcludes(excludes)
-    vim.fn.writefile(excludes, home .. "/.cache/jfind_excludes")
+local function setExclude(exclude)
+    vim.fn.writefile(exclude, home .. "/.cache/jfind_excludes")
 end
 
 local function ternary(cond, T, F)
@@ -89,8 +89,8 @@ end
 
 local M = {
     setup = function(opts)
-        if opts.excludes then
-            setExcludes(opts.excludes)
+        if opts.exclude then
+            setExclude(opts.exclude)
         end
         local mapopts = { noremap = true, silent = true }
         if opts.key then
