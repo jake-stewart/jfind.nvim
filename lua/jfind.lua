@@ -79,7 +79,7 @@ local function findFileTmux()
         return
     end
 
-    vim.cmd.exe("silent! !" .. plugindir .. "/scripts/tmux-jfind-file.sh")
+    vim.cmd("silent! !" .. plugindir .. "/scripts/tmux-jfind-file.sh")
 
     local ok, contents = pcall(vim.fn.readfile, home .. "/.cache/jfind_out")
     if ok then
