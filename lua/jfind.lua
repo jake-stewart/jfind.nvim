@@ -1,20 +1,24 @@
 local filepath = debug.getinfo(1).source:sub(2)
-local plugindir = vim.fn.fnamemodify(filepath, ':p:h:h:h')
-local home = vim.fn.getenv("HOME")
+local plugindir = vim.fn.fnamemodify(filepath, ':p:h:h')
+local HOME = vim.fn.getenv("HOME")
 local jfindGithubUrl = "https://github.com/jake-stewart/jfind"
+
+local function editJfindPick()
+    local ok, contents = pcall(vim.fn.readfile, HOME .. "/.cache/jfind_out")
+    if ok and contents[1] then
+        vim.cmd("edit " .. contents[1])
+    end
+end
 
 local function onExit(window, status)
     vim.fn.nvim_win_close(window, 0)
     if status == 0 then
-        local ok, contents = pcall(vim.fn.readfile, home .. "/.cache/jfind_out")
-        if ok then
-            vim.cmd("edit " .. contents[0])
-        end
+        editJfindPick()
     end
 end
 
 local function setExclude(exclude)
-    vim.fn.writefile(exclude, home .. "/.cache/jfind_excludes")
+    vim.fn.writefile(exclude, HOME .. "/.cache/jfind_excludes")
 end
 
 local function ternary(cond, T, F)
@@ -79,13 +83,8 @@ local function findFileTmux()
         vim.cmd.echoerr("jfind is not installed. " .. jfindGithubUrl)
         return
     end
-
     vim.cmd("silent! !" .. plugindir .. "/scripts/tmux-jfind-file.sh")
-
-    local ok, contents = pcall(vim.fn.readfile, home .. "/.cache/jfind_out")
-    if ok then
-        vim.cmd("edit " .. contents[0])
-    end
+    editJfindPick()
 end
 
 local M = {
