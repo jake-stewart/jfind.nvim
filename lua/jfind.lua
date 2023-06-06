@@ -3,6 +3,12 @@ local plugindir = vim.fn.fnamemodify(filepath, ':p:h:h')
 local HOME = vim.fn.getenv("HOME")
 local jfindGithubUrl = "https://github.com/jake-stewart/jfind"
 
+local config = {
+    maxWidth = 120,
+    maxHeight = 28,
+    border = "rounded"
+}
+
 local function editJfindPick()
     local ok, contents = pcall(vim.fn.readfile, HOME .. "/.cache/jfind_out")
     if ok and contents[1] then
@@ -31,9 +37,6 @@ local function findFile()
         return
     end
 
-    local max_width = 118
-    local max_height = 26
-
     local border = "none"
     local col = 0
     local row = 0
@@ -44,20 +47,26 @@ local function findFile()
     local width
     local height
 
-    if vim.o.columns > max_width then
-        width = ternary(vim.o.columns % 2, max_width - 1, max_width)
-        if vim.o.lines > max_height then
-            height = ternary(vim.o.lines % 2, max_height - 1, maxHeight)
-            border = "rounded"
+    local vpad = ternary(vim.o.laststatus > 1, 2, 1)
+
+    if vim.o.columns > config.max_width then
+        width = ternary(
+            vim.o.columns % 2, config.max_width - 1, config.max_width
+        )
+        if vim.o.lines > config.max_height then
+            height = ternary(
+                vim.o.lines % 2, config.max_height - 1, config.maxHeight
+            )
+            border = config.border
             col = (ui.width/2) - (width/2) - 1
             row = (ui.height/2) - (height/2) - 1
         else
-            width = 1000
-            height = 1000
+            width = vim.o.columns
+            height = vim.o.lines - vpad
         end
     else
-        width = 1000
-        height = 1000
+        width = vim.o.columns
+        height = vim.o.lines - vpad
     end
 
     local opts = {
@@ -83,7 +92,8 @@ local function findFileTmux()
         vim.cmd.echoerr("jfind is not installed. " .. jfindGithubUrl)
         return
     end
-    vim.cmd("silent! !" .. plugindir .. "/scripts/tmux-jfind-file.sh")
+    vim.cmd("silent! !" .. plugindir .. "/scripts/tmux-jfind-file.sh "
+        .. config.maxWidth .. " " .. config.maxHeight)
     editJfindPick()
 end
 
@@ -99,6 +109,15 @@ local M = {
             else
                 vim.keymap.set('n', opts.key, findFile, mapopts)
             end
+        end
+        if opts.border then
+            config.border = opts.border
+        end
+        if opts.maxWidth then
+            config.maxWidth = opts.maxWidth
+        end
+        if opts.maxHeight then
+            config.maxHeight = opts.maxHeight
         end
     end
 }
