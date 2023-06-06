@@ -6,6 +6,8 @@ local jfindGithubUrl = "https://github.com/jake-stewart/jfind"
 local config = {
     maxWidth = 120,
     maxHeight = 28,
+    key = "<c-f>",
+    tmux = false,
     border = "single"
 }
 
@@ -103,21 +105,15 @@ local M = {
             setExclude(opts.exclude)
         end
         local mapopts = { noremap = true, silent = true }
-        if opts.key then
-            if vim.fn.exists("$TMUX") and opts.tmux then
-                vim.keymap.set('n', opts.key, findFileTmux, mapopts)
-            else
-                vim.keymap.set('n', opts.key, findFile, mapopts)
-            end
-        end
-        if opts.border then
-            config.border = opts.border
-        end
-        if opts.maxWidth then
-            config.maxWidth = opts.maxWidth
-        end
-        if opts.maxHeight then
-            config.maxHeight = opts.maxHeight
+        if opts.key ~= nil then config.key = opts.key end
+        if opts.tmux ~= nil then config.tmux = opts.tmux end
+        if opts.border ~= nil then config.border = opts.border end
+        if opts.maxWidth ~= nil then config.maxWidth = opts.maxWidth end
+        if opts.maxHeight ~= nil then config.maxHeight = opts.maxHeight end
+        if vim.fn.exists("$TMUX") and config.tmux then
+            vim.keymap.set('n', opts.key, findFileTmux, mapopts)
+        else
+            vim.keymap.set('n', opts.key, findFile, mapopts)
         end
     end
 }
