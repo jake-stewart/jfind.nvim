@@ -9,30 +9,13 @@ command_exists() {
 }
 
 list_files() {
-    exclude=(
-        ".git"
-        ".idea"
-        ".vscode"
-        ".sass-cache"
-        ".class"
-        "__pycache__"
-        "node_modules"
-        "target"
-        "build"
-        "tmp"
-        "assets"
-        "dist"
-        "public"
-    )
-    exclude_str=$(printf ",%s" "${exclude[@]}")
-    exclude_str=${exclude_str:1}
-
     command_exists fd && fd_command="fd"
     command_exists fdfind && fd_command="fdfind"
 
     if [ -n "$fd_command" ]; then
-        (cd "$1" && \
-            "$fd_command" -a -E "*.iml" -E "*.meta" --type f --exclude="{$exclude_str}")
+        exclude=$(cat "$HOME/.cache/jfind_excludes" \
+            | sed "s/'/'\"'\"'/g" | awk "{printf \" -E '%s'\", "'$0}')
+        (cd "$1" && eval "$fd_command -a --type f $exclude")
     else
         find "$1" -type f
     fi

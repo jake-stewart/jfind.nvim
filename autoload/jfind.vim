@@ -1,6 +1,6 @@
 let s:plugindir = expand('<sfile>:p:h:h')
 
-function! jfind#onExit(window, status)
+function! s:onExit(window, status)
     call nvim_win_close(a:window, 0)
     if a:status == 0
         try
@@ -12,7 +12,16 @@ function! jfind#onExit(window, status)
     endif
 endfunction
 
+function! jfind#setExcludes(excludes)
+    call writefile(a:excludes, $HOME . "/.cache/jfind_excludes")
+endfunction
+
 function! jfind#findFile()
+    if !executable("jfind")
+        echoerr "jfind is not installed. https://github.com/jake-stewart/jfind"
+        return
+    endif
+
     let max_width = 118
     let max_height = 26
 
@@ -52,13 +61,18 @@ function! jfind#findFile()
     let win = nvim_open_win(buf, 1, opts)
     call nvim_win_set_option(win, 'winhl', 'normal:normal')
 
-    let t = termopen(s:plugindir . "/jfind-file.sh",
-                \ {'on_exit': {status, data -> jfind#onExit(win, data)}})
+    let t = termopen(s:plugindir . "/scripts/jfind-file.sh",
+                \ {'on_exit': {status, data -> s:onExit(win, data)}})
     startinsert
 endfunction
  
 function! jfind#findFileTmux()
-    exe "silent! !" . s:plugindir . "/tmux-jfind-file.sh"
+    if !executable("jfind")
+        echoerr "jfind is not installed. https://github.com/jake-stewart/jfind"
+        return
+    endif
+
+    exe "silent! !" . s:plugindir . "/scripts/tmux-jfind-file.sh"
     try
         let l:contents = readfile($HOME . "/.cache/jfind_out")
         exe 'edit ' . l:contents[0]
@@ -66,9 +80,3 @@ function! jfind#findFileTmux()
         return
     endtry
 endfunction
-
-if exists('$TMUX')
-    nnoremap <silent><c-f> :call jfind#findFile()<cr>
-else
-    nnoremap <silent><c-f> :call jfind#findFileTmux()<cr>
-endif
