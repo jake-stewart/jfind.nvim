@@ -13,11 +13,14 @@ list_files() {
     command_exists fdfind && fd_command="fdfind"
 
     if [ -n "$fd_command" ]; then
-        exclude=$(cat "$HOME/.cache/jfind_excludes" \
+        exclude=$(cat "$HOME/.cache/jfind_excludes" 2>/dev/null \
             | sed "s/'/'\"'\"'/g" | awk "{printf \" -E '%s'\", "'$0}')
         (cd "$1" && eval "$fd_command -a --type f $exclude")
     else
-        find "$1" -type f
+        exclude=$(cat "$HOME/.cache/jfind_excludes" 2>/dev/null \
+            | sed "s/'/'\"'\"'/g" \
+            | awk "{printf \" ! -path '*/%s/*' ! -iname '%s'\", "'$0, $0}')
+        eval "find '$1' -type f $exclude"
     fi
 }
 
