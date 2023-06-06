@@ -101,19 +101,21 @@ end
 
 local M = {
     setup = function(opts)
-        if opts.exclude then
-            setExclude(opts.exclude)
+        if opts ~= nil then
+            if opts.exclude then
+                setExclude(opts.exclude)
+            end
+            if opts.key ~= nil then config.key = opts.key end
+            if opts.tmux ~= nil then config.tmux = opts.tmux end
+            if opts.border ~= nil then config.border = opts.border end
+            if opts.maxWidth ~= nil then config.maxWidth = opts.maxWidth end
+            if opts.maxHeight ~= nil then config.maxHeight = opts.maxHeight end
         end
         local mapopts = { noremap = true, silent = true }
-        if opts.key ~= nil then config.key = opts.key end
-        if opts.tmux ~= nil then config.tmux = opts.tmux end
-        if opts.border ~= nil then config.border = opts.border end
-        if opts.maxWidth ~= nil then config.maxWidth = opts.maxWidth end
-        if opts.maxHeight ~= nil then config.maxHeight = opts.maxHeight end
         if vim.fn.exists("$TMUX") and config.tmux then
-            vim.keymap.set('n', opts.key, findFileTmux, mapopts)
+            vim.keymap.set('n', config.key, findFileTmux, mapopts)
         else
-            vim.keymap.set('n', opts.key, findFile, mapopts)
+            vim.keymap.set('n', config.key, findFile, mapopts)
         end
     end
 }
