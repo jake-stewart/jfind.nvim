@@ -1,8 +1,8 @@
 # jfind.nvim
 
 ### Dependencies
-(jfind)[https://github.com/jake-stewart/jfind] (Required)
-(fdfind)[https://github.com/sharkdp/fd] (Recommended as a faster alternative to `find`)
+[jfind](https://github.com/jake-stewart/jfind) (Required)
+[fdfind](https://github.com/sharkdp/fd) (Recommended as a faster alternative to `find`)
 
 ### setup options
 #### key
