@@ -1,4 +1,5 @@
-local plugindir = vim.fn.expand('<sfile>:p:h:h:h')
+local filepath = debug.getinfo(1).source:sub(2)
+local plugindir = vim.fn.fnamemodify(filepath, ':p:h:h:h')
 local home = vim.fn.getenv("HOME")
 local jfindGithubUrl = "https://github.com/jake-stewart/jfind"
 
