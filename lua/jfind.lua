@@ -6,7 +6,7 @@ local jfindGithubUrl = "https://github.com/jake-stewart/jfind"
 local config = {
     maxWidth = 120,
     maxHeight = 28,
-    border = "rounded"
+    border = "single"
 }
 
 local function editJfindPick()
@@ -104,7 +104,7 @@ local M = {
         end
         local mapopts = { noremap = true, silent = true }
         if opts.key then
-            if opts.tmux then
+            if vim.fn.exists("$TMUX") and opts.tmux then
                 vim.keymap.set('n', opts.key, findFileTmux, mapopts)
             else
                 vim.keymap.set('n', opts.key, findFile, mapopts)
