@@ -11,7 +11,7 @@ local function editJfindPick()
 end
 
 local function onExit(window, status)
-    vim.fn.nvim_win_close(window, 0)
+    vim.api.nvim_win_close(window, 0)
     if status == 0 then
         editJfindPick()
     end
@@ -38,8 +38,8 @@ local function findFile()
     local col = 0
     local row = 0
 
-    local buf = vim.fn.nvim_create_buf(false, true)
-    local ui = vim.fn.nvim_list_uis()[0]
+    local buf = vim.api.nvim_create_buf(false, true)
+    local ui = vim.api.nvim_list_uis()[1]
 
     local width
     local height
@@ -71,8 +71,8 @@ local function findFile()
         border = border
     }
 
-    local win = vim.fn.nvim_open_win(buf, 1, opts)
-    vim.fn.nvim_win_set_option(win, "winhl", "normal:normal")
+    local win = vim.api.nvim_open_win(buf, 1, opts)
+    vim.api.nvim_win_set_option(win, "winhl", "normal:normal")
     local t = vim.fn.termopen(plugindir .. "/scripts/jfind-file.sh",
                 {on_exit = function(status, data) onExit(win, data) end})
     vim.cmd.startinsert()
