@@ -21,7 +21,7 @@ local function ternary(cond, T, F)
 end
 
 local function findFile()
-    if ~vim.fn.executable("jfind") then
+    if not vim.fn.executable("jfind") then
         vim.cmd.echoerr("jfind is not installed. " .. jfindGithubUrl)
         return
     end
@@ -74,7 +74,7 @@ local function findFile()
 end
 
 local function findFileTmux()
-    if ~vim.cmd.executable("jfind") then
+    if not vim.cmd.executable("jfind") then
         vim.cmd.echoerr("jfind is not installed. " .. jfindGithubUrl)
         return
     end
