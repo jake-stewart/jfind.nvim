@@ -25,10 +25,12 @@
       - "shadow": A drop shadow effect by blending with the background.
       - Or an array for a custom border. See `:h nvim_open_win` for details.
  - default is `single`.
-#### minWidth
+#### maxWidth
  - An integer of how large in width the jfind can be as fullscreen until it becomes a popup window.
+ - default is 120
 #### maxHeight
  - An integer of how large in height the jfind can be as fullscreen until it becomes a popup window.
+ - default is 28
 
 ### example [lazy](https://github.com/folke/lazy.nvim) config
 ```lua
