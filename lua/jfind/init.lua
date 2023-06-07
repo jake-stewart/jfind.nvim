@@ -112,7 +112,7 @@ local M = {
             if opts.maxHeight ~= nil then config.maxHeight = opts.maxHeight end
         end
         local mapopts = { noremap = true, silent = true }
-        if vim.fn.exists("$TMUX") and config.tmux then
+        if vim.fn.exists("$TMUX") == 1 and config.tmux then
             vim.keymap.set('n', config.key, findFileTmux, mapopts)
         else
             vim.keymap.set('n', config.key, findFile, mapopts)
