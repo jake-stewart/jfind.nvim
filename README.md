@@ -1,5 +1,7 @@
 # jfind.nvim
 
+A plugin for using jfind as a neovim file fuzzy finder.
+
 ### Dependencies
  - [jfind](https://github.com/jake-stewart/jfind) (Required)
  - [fdfind](https://github.com/sharkdp/fd) (Recommended as a faster alternative to `find`)
