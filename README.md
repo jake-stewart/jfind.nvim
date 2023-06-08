@@ -6,6 +6,11 @@ A plugin for using jfind as a neovim file fuzzy finder.
  - [jfind](https://github.com/jake-stewart/jfind) (Required)
  - [fdfind](https://github.com/sharkdp/fd) (Recommended as a faster alternative to `find`)
 
+You can install jfind with this one liner. You will need git, cmake, and make.
+```
+git clone https://github.com/jake-stewart/jfind && cd jfind && cmake -S . -B build && cd build && sudo make install
+```
+
 ### setup options
 #### key
  - The key which will trigger the jfind window to open.
