@@ -32,7 +32,7 @@
  - An integer of how large in height the jfind can be as fullscreen until it becomes a popup window.
  - default is 28
 #### formatPaths
- - A boolean of whether the paths should be formatted for better earching, or left as full paths.
+ - A boolean of whether the paths should be formatted for better searching, or left as full paths.
  - default: `false`
 
 ### example [lazy](https://github.com/folke/lazy.nvim) config
