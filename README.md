@@ -66,6 +66,7 @@ require("lazy").setup({
                 },
                 border = "rounded",
                 tmux = true,
+                formatPaths = true,
                 key = "<c-f>"
             });
         end
