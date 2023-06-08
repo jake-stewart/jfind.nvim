@@ -25,4 +25,19 @@ list_files() {
     fi
 }
 
-list_files $(pwd) | jfind
+format_files() {
+    awk '{
+        split($0, path_parts, "/");
+        num_parts = length(path_parts);
+        first = num_parts == 1 ? "" : path_parts[num_parts - 1] "/";
+        second = path_parts[length(path_parts)];
+        print first second;
+        print $0;
+    }'
+}
+
+jfind_command() {
+    jfind --hints --select-hint
+}
+
+list_files | format_files | jfind_command

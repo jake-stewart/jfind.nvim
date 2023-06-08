@@ -29,6 +29,9 @@
  - An integer of how large in width the jfind can be as fullscreen until it becomes a popup window.
 #### maxHeight
  - An integer of how large in height the jfind can be as fullscreen until it becomes a popup window.
+#### formatPaths
+ - A boolean of whether the paths should be formatted for better earching, or left as full paths.
+ - default: `false`
 
 ### example [lazy](https://github.com/folke/lazy.nvim) config
 ```lua
