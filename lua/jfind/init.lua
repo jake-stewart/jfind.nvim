@@ -3,7 +3,7 @@ local PLUGIN_DIR = vim.fn.fnamemodify(FILE_PATH, ':p:h:h:h')
 local SCRIPTS_DIR = PLUGIN_DIR .. "/scripts"
 local HOME = vim.fn.getenv("HOME")
 local CACHE = vim.fn.getenv("XDG_CACHE_HOME")
-if CACHE == "" then CACHE = HOME .. "/.cache" end
+if CACHE == "" or CACHE == vim.NIL then CACHE = HOME .. "/.cache" end
 
 local JFIND_GITHUB_URL = "https://github.com/jake-stewart/jfind"
 
