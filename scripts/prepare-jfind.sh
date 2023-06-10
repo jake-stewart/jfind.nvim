@@ -7,4 +7,12 @@ mkdir -p "$CACHE"
 OUT="$CACHE/jfind_out"
 [ -f "$OUT" ] && rm "$OUT"
 
-"$1" > "$OUT"
+SCRIPT="$1"
+FLAGS="$2"
+shift
+shift
+"$SCRIPT" "$@" | jfind $FLAGS > "$OUT" && exit 0
+
+echo "An error ocurred. Press Enter to continue"
+read
+exit 1

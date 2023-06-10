@@ -1,8 +1,8 @@
 #!/bin/bash
+set -e
 
-SCRIPT="$1"
-MAX_WIDTH="$2"
-MAX_HEIGHT="$3"
+MAX_WIDTH="$1"
+MAX_HEIGHT="$2"
 DISABLE_CURSOR='echo "\x1b[?25l"'
 
 client_width=$(tmux display -p "#{client_width}")
@@ -25,6 +25,9 @@ else
     fullscreen
 fi
 
+shift
+shift
+
 tmux display-popup \
     -w "$width" \
     -h $((height - 1)) \
@@ -32,5 +35,5 @@ tmux display-popup \
     -E \
     -d "$(pwd)" \
     $border \
-    "$DISABLE_CURSOR;$SCRIPT;$DISABLE_CURSOR"
+    "$@"
 
