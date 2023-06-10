@@ -38,8 +38,8 @@ use {
 ```
 
 
-Config
-------
+Example Config
+--------------
 
 ```lua
 local jfind = require("jfind")
