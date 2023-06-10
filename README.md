@@ -1,14 +1,63 @@
-# jfind.nvim
-
+jfind.nvim
+==========
 A plugin for using jfind as a neovim file fuzzy finder.
 
-### Dependencies
+Dependencies
+------------
  - [jfind](https://github.com/jake-stewart/jfind) (Required)
  - [fdfind](https://github.com/sharkdp/fd) (Recommended as a faster alternative to `find`)
 
 You can install jfind with this one liner. You will need git, cmake, and make.
 ```
 git clone https://github.com/jake-stewart/jfind && cd jfind && cmake -S . -B build && cd build && sudo make install
+```
+
+Quickstart
+----------
+
+### [lazy.nvim](https://github.com/folke/lazy.nvim)
+```lua
+require("lazy").setup({
+    {
+        "jake-stewart/jfind.nvim", branch = "1.0",
+        keys = {
+            {"<c-f>", function()
+                local Key = require("jfind.key")
+                require("jfind").findFile({
+                    formatPaths = true,
+                    callback = {
+                        [Key.DEFAULT] = vim.cmd.edit,
+                        [Key.CTRL_S] = vim.cmd.split,
+                        [Key.CTRL_V] = vim.cmd.vsplit,
+                    }
+                })
+            end},
+        },
+        config = function()
+            require("jfind").setup({
+                exclude = {
+                    ".git",
+                    ".idea",
+                    ".vscode",
+                    ".sass-cache",
+                    ".class",
+                    "__pycache__",
+                    "node_modules",
+                    "target",
+                    "build",
+                    "tmp",
+                    "assets",
+                    "dist",
+                    "public",
+                    "*.iml",
+                    "*.meta"
+                },
+                border = "rounded",
+                tmux = true,
+            });
+        end
+    },
+    ...
 ```
 
 ### setup options
@@ -41,40 +90,3 @@ git clone https://github.com/jake-stewart/jfind && cd jfind && cmake -S . -B bui
 #### formatPaths
  - A boolean of whether the paths should be formatted for better searching, or left as full paths.
  - default: `false`
-
-### example [lazy](https://github.com/folke/lazy.nvim) config
-```lua
-require("lazy").setup({
-    {
-        "jake-stewart/jfind.nvim",
-        keys = {
-            {"<c-f>"},
-        },
-        config = function()
-            require("jfind").setup({
-                exclude = {
-                    ".git",
-                    ".idea",
-                    ".vscode",
-                    ".sass-cache",
-                    ".class",
-                    "__pycache__",
-                    "node_modules",
-                    "target",
-                    "build",
-                    "tmp",
-                    "assets",
-                    "dist",
-                    "public",
-                    "*.iml",
-                    "*.meta"
-                },
-                border = "rounded",
-                tmux = true,
-                formatPaths = true,
-                key = "<c-f>"
-            });
-        end
-    },
-    ...
-```
