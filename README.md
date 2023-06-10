@@ -36,21 +36,9 @@ require("lazy").setup({
         config = function()
             require("jfind").setup({
                 exclude = {
-                    ".git",
-                    ".idea",
-                    ".vscode",
-                    ".sass-cache",
-                    ".class",
-                    "__pycache__",
-                    "node_modules",
-                    "target",
-                    "build",
-                    "tmp",
-                    "assets",
-                    "dist",
-                    "public",
-                    "*.iml",
-                    "*.meta"
+                    ".git", ".idea", ".vscode", ".sass-cache", ".class",
+                    "__pycache__", "node_modules", "target", "build",
+                    "tmp", "assets", "dist", "public", "*.iml", "*.meta"
                 },
                 border = "rounded",
                 tmux = true,
@@ -60,10 +48,8 @@ require("lazy").setup({
     ...
 ```
 
-### setup options
-#### key
- - The key which will trigger the jfind window to open.
- - Default is `<c-f>`.
+setup options
+-------------
 #### tmux
  - a boolean of whether a tmux window is preferred over a neovim window. If tmux is not active, then this value is ignored.
  - Default is `false`.
@@ -87,6 +73,7 @@ require("lazy").setup({
 #### maxHeight
  - An integer of how large in height the jfind can be as fullscreen until it becomes a popup window.
  - default is 28
-#### formatPaths
- - A boolean of whether the paths should be formatted for better searching, or left as full paths.
- - default: `false`
+
+lua jfind api
+-------------
+Work in progress.
