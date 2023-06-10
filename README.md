@@ -68,7 +68,6 @@ jfind.setup({
 });
 
 -- fuzzy file search can be started simply with
--- (this is currently broken i am fixing it)
 vim.keymap.set("n", "<c-f>", jfind.findFile)
 
 -- or you can provide more customization
