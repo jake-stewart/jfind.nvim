@@ -98,6 +98,10 @@ end)
 
 Lua Jfind Interface
 -------------------
+This section is useful if you want to create your own fuzzy finders using
+jfind, or if you want to understand the configuration better.
+
+### The jfind function
 This plugin provides the `jfind()` function, which can be accessed via
 `require("jfind").jfind`. This function opens a tmux or nvim popup based on
 user configuration, performs fuzzy finding, and calls a provided callback with
