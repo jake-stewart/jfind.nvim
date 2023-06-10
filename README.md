@@ -12,44 +12,78 @@ You can install jfind with this one liner. You will need git, cmake, and make.
 git clone https://github.com/jake-stewart/jfind && cd jfind && cmake -S . -B build && cd build && sudo make install
 ```
 
-Quickstart
-----------
+Installation
+------------
 
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
-require("lazy").setup({
-    {
-        "jake-stewart/jfind.nvim", branch = "1.0",
-        keys = {
-            {"<c-f>", function()
-                local Key = require("jfind.key")
-                require("jfind").findFile({
-                    formatPaths = true,
-                    callback = {
-                        [Key.DEFAULT] = vim.cmd.edit,
-                        [Key.CTRL_S] = vim.cmd.split,
-                        [Key.CTRL_V] = vim.cmd.vsplit,
-                    }
-                })
-            end},
-        },
-        config = function()
-            require("jfind").setup({
-                exclude = {
-                    ".git", ".idea", ".vscode", ".sass-cache", ".class",
-                    "__pycache__", "node_modules", "target", "build",
-                    "tmp", "assets", "dist", "public", "*.iml", "*.meta"
-                },
-                border = "rounded",
-                tmux = true,
-            });
-        end
-    },
-    ...
+{ "jake-stewart/jfind.nvim", branch = "1.0" }
 ```
 
-setup options
--------------
+### [vim-plug](https://github.com/junegunn/vim-plug)
+```vim
+Plug "jake-stewart/jfind.nvim", { "branch": "1.0" }
+```
+
+### [dein.vim](https://github.com/Shougo/dein.vim)
+```vim
+call dein#add("jake-stewart/jfind.nvim", { 'rev': "1.0" })
+```
+
+### [packer.nvim](wbthomason/packer.nvim)
+```lua
+use {
+  'nvim-telescope/telescope.nvim', branch = '1.0'
+}
+```
+
+
+Config
+------
+
+```lua
+local jfind = require("jfind")
+local Key = require("jfind.key")
+
+jfind.setup({
+    exclude = {
+        ".git",
+        ".idea",
+        ".vscode",
+        ".sass-cache",
+        ".class",
+        "__pycache__",
+        "node_modules",
+        "target",
+        "build",
+        "tmp",
+        "assets",
+        "dist",
+        "public",
+        "*.iml",
+        "*.meta"
+    },
+    border = "rounded",
+    tmux = true,
+});
+
+-- fuzzy file search can be started simply with
+vim.keymap.set("n", "<c-f>", jfind.findFile)
+
+-- or you can provide more customization
+vim.keymap.set("n", "<c-f>", function()
+    jfind.findFile({
+        formatPaths = true,
+        callback = {
+            [Key.DEFAULT] = vim.cmd.edit,
+            [Key.CTRL_S] = vim.cmd.split,
+            [Key.CTRL_V] = vim.cmd.vsplit,
+        }
+    })
+end)
+```
+
+### Setup Options
 #### tmux
  - a boolean of whether a tmux window is preferred over a neovim window. If tmux is not active, then this value is ignored.
  - Default is `false`.
@@ -74,6 +108,6 @@ setup options
  - An integer of how large in height the jfind can be as fullscreen until it becomes a popup window.
  - default is 28
 
-lua jfind api
--------------
+Lua Jfind Interface
+-------------------
 Work in progress.
