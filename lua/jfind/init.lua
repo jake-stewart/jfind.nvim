@@ -165,11 +165,12 @@ local function jfind(opts)
     end
 
     local args = ternary(opts.args, opts.args, {})
+    local script = vim.fn.expand(opts.script)
 
     if config.tmux and vim.fn.exists("$TMUX") == 1 then
-        jfindTmuxPopup(opts.script, flags, args, onComplete)
+        jfindTmuxPopup(script, flags, args, onComplete)
     else
-        jfindNvimPopup(opts.script, flags, args, onComplete)
+        jfindNvimPopup(script, flags, args, onComplete)
     end
 end
 
