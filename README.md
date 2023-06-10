@@ -15,25 +15,25 @@ git clone https://github.com/jake-stewart/jfind && cd jfind && cmake -S . -B bui
 Installation
 ------------
 
-### [lazy.nvim](https://github.com/folke/lazy.nvim)
+#### [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 { "jake-stewart/jfind.nvim", branch = "1.0" }
 ```
 
-### [vim-plug](https://github.com/junegunn/vim-plug)
+#### [vim-plug](https://github.com/junegunn/vim-plug)
 ```vim
 Plug "jake-stewart/jfind.nvim", { "branch": "1.0" }
 ```
 
-### [dein.vim](https://github.com/Shougo/dein.vim)
+#### [dein.vim](https://github.com/Shougo/dein.vim)
 ```vim
-call dein#add("jake-stewart/jfind.nvim", { 'rev': "1.0" })
+call dein#add("jake-stewart/jfind.nvim", { "rev": "1.0" })
 ```
 
-### [packer.nvim](wbthomason/packer.nvim)
+#### [packer.nvim](wbthomason/packer.nvim)
 ```lua
 use {
-  'nvim-telescope/telescope.nvim', branch = '1.0'
+  "nvim-telescope/telescope.nvim", branch = "1.0"
 }
 ```
 
@@ -84,29 +84,13 @@ end)
 ```
 
 ### Setup Options
-#### tmux
- - a boolean of whether a tmux window is preferred over a neovim window. If tmux is not active, then this value is ignored.
- - Default is `false`.
-#### exclude
- - list of strings of files/directories that should be ignored.
- - Entries can contain wildcard matching (e.g. `*.png`).
- - Default is an empty list.
-#### border
- - The style of the border when not fullscreen. Values include:
-      - "none": No border.
-      - "single": A single line box.
-      - "double": A double line box.
-      - "rounded": Like "single", but with rounded corners.
-      - "solid": Adds padding by a single whitespace cell.
-      - "shadow": A drop shadow effect by blending with the background.
-      - Or an array for a custom border. See `:h nvim_open_win` for details.
- - default is `single`.
-#### maxWidth
- - An integer of how large in width the jfind can be as fullscreen until it becomes a popup window.
- - default is 120
-#### maxHeight
- - An integer of how large in height the jfind can be as fullscreen until it becomes a popup window.
- - default is 28
+|Option|Description
+|-|-|
+|`tmux`|a boolean of whether a tmux window is preferred over a neovim window. If tmux is not active, then this value is ignored. Default is `false`.|
+|`exclude`|a list of strings of files/directories that should be ignored. Entries can contain wildcard matching (e.g. `*.png`). Default is an empty list.|
+|`border`|The style of the border when not fullscreen. The default is `"single"`. Possible values include: <br>- `"none"`: No border.<br>- `"single"`: A single line box.<br>- `"double"`: A double line box.<br>- `"rounded"`: Like "single", but with rounded corners.<br>- `"solid"`: Adds padding by a single whitespace cell.<br>- `"shadow"`: A drop shadow effect by blending with the background.<br>- Or an array for a custom border. See `:h nvim_open_win` for details.|
+|`maxWidth`|An integer of how large in width the jfind can be as fullscreen until it becomes a popup window. default is `120`.|
+|`maxHeight`|An integer of how large in height the jfind can be as fullscreen until it becomes a popup window. default is `28`.|
 
 Lua Jfind Interface
 -------------------
