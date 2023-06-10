@@ -206,6 +206,7 @@ end
 
 local function findFile(opts)
     if opts == nil then opts = {} end
+    if opts.callback == nil then opts.callback = vim.cmd.edit end
     local formatPaths = ternary(opts.formatPaths, "true", "false")
     jfind({
         script = JFIND_FILE_SCRIPT,
