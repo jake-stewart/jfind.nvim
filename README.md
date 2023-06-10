@@ -12,6 +12,8 @@ You can install jfind with this one liner. You will need git, cmake, and make.
 git clone https://github.com/jake-stewart/jfind && cd jfind && cmake -S . -B build && cd build && sudo make install
 ```
 
+**If you are migrating to 1.0 from an earlier version, make sure to recompile jfind!**
+
 Installation
 ------------
 
