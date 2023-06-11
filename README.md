@@ -203,7 +203,7 @@ jfind.jfind({
     callback = {
         [key.DEFAULT] = function(_, path) vim.cmd.edit(path) end,
         [key.CTRL_S] = function(_, path) vim.cmd.split(path) end,
-        [key.CTRL_V] = function(_, path) vim.cmd.vsplit(path end,
+        [key.CTRL_V] = function(_, path) vim.cmd.vsplit(path) end,
     }
 })
 
