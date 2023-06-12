@@ -34,9 +34,7 @@ call dein#add("jake-stewart/jfind.nvim", { "rev": "1.0" })
 
 #### [packer.nvim](wbthomason/packer.nvim)
 ```lua
-use {
-  "jake-stewart/jfind.nvim", branch = "1.0"
-}
+use { "jake-stewart/jfind.nvim", branch = "1.0" }
 ```
 
 
