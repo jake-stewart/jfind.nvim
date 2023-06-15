@@ -85,17 +85,15 @@ end)
 
 -- make sure to rebuld jfind if you want live grep
 vim.keymap.set("n", "<leader><c-f>", function()
-    local jfind = require("jfind")
-    local Key = require("jfind.key")
     jfind.liveGrep({
         exclude = {"*.hpp"},       -- overrides setup excludes
         hidden = true,             -- grep hidden files/directories
         caseSensitivity = "smart", -- sensitive, insensitive, smart
                                    -- will use vim settigs by default
         callback = {
-            [Key.DEFAULT] = jfind.editGotoLine,
-            [Key.CTRL_B] = jfind.splitGotoLine,
-            [Key.CTRL_N] = jfind.vsplitGotoLine,
+            [key.DEFAULT] = jfind.editGotoLine,
+            [key.CTRL_B] = jfind.splitGotoLine,
+            [key.CTRL_N] = jfind.vsplitGotoLine,
         }
     })
 end)
