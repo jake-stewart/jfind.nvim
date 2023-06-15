@@ -34,9 +34,7 @@ call dein#add("jake-stewart/jfind.nvim", { "rev": "1.0" })
 
 #### [packer.nvim](wbthomason/packer.nvim)
 ```lua
-use {
-  "jake-stewart/jfind.nvim", branch = "1.0"
-}
+use { "jake-stewart/jfind.nvim", branch = "1.0" }
 ```
 
 
@@ -77,6 +75,7 @@ vim.keymap.set("n", "<c-f>", jfind.findFile)
 vim.keymap.set("n", "<c-f>", function()
     jfind.findFile({
         formatPaths = true,
+        hidden = true,
         callback = {
             [key.DEFAULT] = vim.cmd.edit,
             [key.CTRL_S] = vim.cmd.split,
@@ -84,6 +83,22 @@ vim.keymap.set("n", "<c-f>", function()
         }
     })
 end)
+
+-- make sure to rebuld jfind if you want live grep
+vim.keymap.set("n", "<leader><c-f>", function()
+    jfind.liveGrep({
+        exclude = {"*.hpp"},       -- overrides setup excludes
+        hidden = true,             -- grep hidden files/directories
+        caseSensitivity = "smart", -- sensitive, insensitive, smart
+                                   --     will use vim settings by default
+        callback = {
+            [key.DEFAULT] = jfind.editGotoLine,
+            [key.CTRL_B] = jfind.splitGotoLine,
+            [key.CTRL_N] = jfind.vsplitGotoLine,
+        }
+    })
+end)
+
 ```
 
 ### Setup Options
@@ -203,7 +218,7 @@ jfind.jfind({
     callback = {
         [key.DEFAULT] = function(_, path) vim.cmd.edit(path) end,
         [key.CTRL_S] = function(_, path) vim.cmd.split(path) end,
-        [key.CTRL_V] = function(_, path) vim.cmd.vsplit(path end,
+        [key.CTRL_V] = function(_, path) vim.cmd.vsplit(path) end,
     }
 })
 
@@ -257,5 +272,20 @@ jfind.jfind({
         [key.CTRL_S] = vim.cmd.split,
         [key.CTRL_V] = vim.cmd.vsplit,
     }
+})
+```
+
+### Using external programs to filter results
+
+`liveGrep()` uses grep and ripgrep for the matching process.
+Every time you type a key in jfind, a new process is spawned and fed the current query.
+You can do the same thing with the `command` option in `jfind.jfind()`.
+
+A good example to play with would be the following:
+
+```
+jfind.jfind({
+    command = "seq {}",
+    callback = print
 })
 ```
