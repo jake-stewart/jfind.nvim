@@ -16,6 +16,45 @@ local PREPARE_JFIND_SCRIPT = SCRIPTS_DIR .. "/prepare-jfind.sh"
 local TMUX_POPUP_SCRIPT = SCRIPTS_DIR .. "/tmux-popup.sh"
 local JFIND_FILE_SCRIPT = SCRIPTS_DIR .. "/jfind-file.sh"
 
+local LIVE_GREP_COMMANDS = {
+    rg = {
+        fixed = "-F",
+        null = "--null",
+        numbers = "-n",
+        caseSensitivity = {
+            smart = "-S",
+            insensitive = "-i",
+            sensitive = "",
+        },
+        showHidden = "--hidden",
+        exclude = "--iglob=!",
+    },
+    grep = {
+        fixed = "-F",
+        null = "--null",
+        numbers = "-n",
+        caseSensitivity = {
+            smart = "-S",
+            insensitive = "-i",
+            sensitive = "",
+        },
+        hideHidden = "*/.*",
+        exclude = "--exclude=",
+        excludeDir = "--excludeDir=",
+    }
+}
+
+local LIVE_GREP_FMT = [[ {} | xargs -0 -n 1 | awk -F: '
+    NR % 2 == 1 {
+        previous = $0
+    }
+    NR % 2 == 0 {
+        print substr($0, index($0, $2))
+        print previous FS $1
+        fflush(stdout)
+    }
+']]
+
 local config = {
     maxWidth = 120,
     maxHeight = 28,
@@ -34,7 +73,7 @@ local function ternary(cond, T, F)
     if cond then return T else return F end
 end
 
-local function jfindNvimPopup(script, flags, args, onComplete)
+local function jfindNvimPopup(script, command, flags, args, onComplete)
     local border = "none"
     local col = 0
     local row = 0
@@ -81,7 +120,7 @@ local function jfindNvimPopup(script, flags, args, onComplete)
     local win = vim.api.nvim_open_win(buf, 1, opts)
     vim.api.nvim_win_set_option(win, "winhl", "normal:normal")
 
-    local cmd = {PREPARE_JFIND_SCRIPT, script, flags}
+    local cmd = {PREPARE_JFIND_SCRIPT, script, command, flags}
     table.move(args, 1, #args, #cmd + 1, cmd)
 
     vim.fn.termopen(cmd, {on_exit = function(_, status, _)
@@ -93,13 +132,14 @@ local function jfindNvimPopup(script, flags, args, onComplete)
     vim.cmd.startinsert()
 end
 
-local function jfindTmuxPopup(script, flags, args, onComplete)
+local function jfindTmuxPopup(script, command, flags, args, onComplete)
     local cmd = {
         TMUX_POPUP_SCRIPT,
         config.maxWidth,
         config.maxHeight,
         PREPARE_JFIND_SCRIPT,
         script,
+        command,
         flags
     }
     table.move(args, 1, #args, #cmd + 1, cmd)
@@ -166,11 +206,12 @@ local function jfind(opts)
 
     local args = ternary(opts.args, opts.args, {})
     local script = vim.fn.expand(opts.script)
+    local command = ternary(opts.command, opts.command, "")
 
     if config.tmux and vim.fn.exists("$TMUX") == 1 then
-        jfindTmuxPopup(script, flags, args, onComplete)
+        jfindTmuxPopup(script, command, flags, args, onComplete)
     else
-        jfindNvimPopup(script, flags, args, onComplete)
+        jfindNvimPopup(script, command, flags, args, onComplete)
     end
 end
 
@@ -207,14 +248,78 @@ end
 local function findFile(opts)
     if opts == nil then opts = {} end
     if opts.callback == nil then opts.callback = vim.cmd.edit end
+    if opts.hidden == nil then opts.hidden = true end
     local formatPaths = ternary(opts.formatPaths, "true", "false")
+    local hidden = ternary(opts.hidden, "true", "false")
     jfind({
         script = JFIND_FILE_SCRIPT,
-        args = {formatPaths},
+        args = {formatPaths, hidden},
         hints = opts.formatPaths,
         callback = opts.callback,
         callbackWrapper = function(callback, result, hint)
             callback(ternary(opts.formatPaths, hint, result))
+        end
+    })
+end
+
+local function editGotoLine(file, line)
+    vim.cmd("edit +" .. line .. " " .. file)
+end
+
+local function splitGotoLine(file, line)
+    vim.cmd("split +" .. line .. " " .. file)
+end
+
+local function vsplitGotoLine(file, line)
+    vim.cmd("vsplit +" .. line .. " " .. file)
+end
+
+local function getDefaultCaseSensitivity()
+    if vim.o.ignorecase then
+        if vim.o.smartcase then
+            return "smart"
+        end
+        return "insensitive"
+    end
+    return "sensitive"
+end
+
+local function liveGrep(opts)
+    if opts == nil then opts = {} end
+    if opts.hidden == nil then opts.hidden = true end
+    if opts.fixed == nil then opts.fixed = false end
+    if opts.caseSensitivity == nil then
+        opts.caseSensitivity = getDefaultCaseSensitivity();
+    end
+    if opts.callback == nil then opts.callback = editGotoLine end
+    opts.exclude = opts.exclude or config.exclude or {}
+
+    local command = ternary(vim.fn.executable("rg") == 1, "rg", "grep")
+    local flags = LIVE_GREP_COMMANDS[command]
+    local args = {flags.numbers, flags.null}
+    if opts.fixed then table.insert(args, flags.fixed) end
+    table.insert(args, flags.caseSensitivity[opts.caseSensitivity])
+    if opts.hidden then
+        if flags.showHidden then table.insert(args, flags.showHidden) end
+    else
+        if flags.hideHidden then table.insert(args, flags.hideHidden) end
+    end
+    for _, v in pairs(opts.exclude) do
+        table.insert(args, vim.fn.shellescape(flags.exclude .. v))
+        if flags.excludeDir then
+            table.insert(args, vim.fn.shellescape(flags.excludeDir .. v))
+        end
+    end
+
+    jfind({
+        command = command .. " " .. table.concat(args, " ") .. LIVE_GREP_FMT,
+        hints = true,
+        callback = opts.callback,
+        callbackWrapper = function(callback, _, result)
+            local idx = string.find(result, ":[0-9]*$", 0, false)
+            local filename = string.sub(result, 1, idx - 1)
+            local lineNumber = string.sub(result, idx + 1)
+            callback(filename, lineNumber)
         end
     })
 end
@@ -224,9 +329,7 @@ local function formatPath(path)
     for part in string.gmatch(path, "[^/]+") do
         table.insert(parts, part)
     end
-
     local total = #parts
-
     if total == 1 then
         return path
     elseif total == 2 then
@@ -234,7 +337,6 @@ local function formatPath(path)
     else
         return parts[total - 1] .. "/" .. parts[total]
     end
-
 end
 
 local function setup(opts)
@@ -272,8 +374,9 @@ local function setup(opts)
                 })
                 if not warnedAboutDeprecation then
                     local warning =
-                        "jfind 1.0 has been released and your config is deprecated. Visit "
-                        .. JFIND_NVIM_GITHUB_URL .. " for new usage."
+                        "jfind 1.0 has been released and your config is"
+                        .. " deprecated. Visit " .. JFIND_NVIM_GITHUB_URL
+                        .. " for new usage."
                     print(warning)
                     warnedAboutDeprecation = true
                 end
@@ -287,6 +390,12 @@ end
 return {
     setup = setup,
     findFile = findFile,
-    formatPath = formatPath,
+    liveGrep = liveGrep,
     jfind = jfind,
+
+    -- util functions
+    formatPath = formatPath,
+    editGotoLine = editGotoLine,
+    splitGotoLine = splitGotoLine,
+    vsplitGotoLine = vsplitGotoLine,
 }

@@ -8,10 +8,18 @@ OUT="$CACHE/jfind_out"
 [ -f "$OUT" ] && rm "$OUT"
 
 SCRIPT="$1"
-FLAGS="$2"
+COMMAND="$2"
+FLAGS="$3"
 shift
 shift
-"$SCRIPT" "$@" | jfind $FLAGS > "$OUT" && exit 0
+shift
+
+if [ -n "$COMMAND" ]; then
+    # echo "[[$COMMAND]]" > ~/jfind-command
+    jfind $FLAGS --command="$COMMAND" > "$OUT" && exit 0
+else
+    "$SCRIPT" "$@" | jfind $FLAGS > "$OUT" && exit 0
+fi
 
 echo "An error ocurred. Press Enter to continue"
 read
