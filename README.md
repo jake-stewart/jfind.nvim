@@ -75,6 +75,7 @@ vim.keymap.set("n", "<c-f>", jfind.findFile)
 vim.keymap.set("n", "<c-f>", function()
     jfind.findFile({
         formatPaths = true,
+        hidden = true,
         callback = {
             [key.DEFAULT] = vim.cmd.edit,
             [key.CTRL_S] = vim.cmd.split,
