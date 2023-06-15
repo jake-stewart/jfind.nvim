@@ -117,6 +117,10 @@ local function jfindNvimPopup(script, command, flags, args, onComplete)
         border = border
     }
 
+    -- some users may map escape to normal mode in a terminal buffer
+    -- we want to ensure that config does not apply to the jfind window
+    vim.api.nvim_buf_set_keymap(buf, "t", "<esc>", "<esc>", {noremap = true})
+
     local win = vim.api.nvim_open_win(buf, 1, opts)
     vim.api.nvim_win_set_option(win, "winhl", "normal:normal")
 
