@@ -90,7 +90,7 @@ vim.keymap.set("n", "<leader><c-f>", function()
         exclude = {"*.hpp"},       -- overrides setup excludes
         hidden = true,             -- grep hidden files/directories
         caseSensitivity = "smart", -- sensitive, insensitive, smart
-                                   -- will use vim settigs by default
+                                   --     will use vim settings by default
         callback = {
             [key.DEFAULT] = jfind.editGotoLine,
             [key.CTRL_B] = jfind.splitGotoLine,
