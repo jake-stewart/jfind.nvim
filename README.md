@@ -82,6 +82,24 @@ vim.keymap.set("n", "<c-f>", function()
         }
     })
 end)
+
+-- make sure to rebuld jfind if you want live grep
+vim.keymap.set("n", "<leader><c-f>", function()
+    local jfind = require("jfind")
+    local Key = require("jfind.key")
+    jfind.liveGrep({
+        exclude = {"*.hpp"},       -- overrides setup excludes
+        hidden = true,             -- grep hidden files/directories
+        caseSensitivity = "smart", -- sensitive, insensitive, smart
+                                   -- will use vim settigs by default
+        callback = {
+            [Key.DEFAULT] = jfind.editGotoLine,
+            [Key.CTRL_B] = jfind.splitGotoLine,
+            [Key.CTRL_N] = jfind.vsplitGotoLine,
+        }
+    })
+end)
+
 ```
 
 ### Setup Options
@@ -255,5 +273,20 @@ jfind.jfind({
         [key.CTRL_S] = vim.cmd.split,
         [key.CTRL_V] = vim.cmd.vsplit,
     }
+})
+```
+
+### Using external programs to filter results
+
+`liveGrep()` uses grep and ripgrep for the matching process.
+Every time you type a key in jfind, a new process is spawned and fed the current query.
+You can do the same thing with the `command` option in `jfind.jfind()`.
+
+A good example to play with would be the following:
+
+```
+jfind.jfind({
+    command = "seq {}",
+    callback = print
 })
 ```
