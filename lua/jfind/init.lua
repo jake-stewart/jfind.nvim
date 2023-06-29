@@ -6,7 +6,6 @@ local CACHE = vim.fn.getenv("XDG_CACHE_HOME")
 if CACHE == "" or CACHE == vim.NIL then CACHE = HOME .. "/.cache" end
 
 local JFIND_GITHUB_URL = "https://github.com/jake-stewart/jfind"
-local JFIND_NVIM_GITHUB_URL = "https://github.com/jake-stewart/jfind.nvim"
 
 local JFIND_INPUT_PATH = CACHE .. "/jfind_in"
 local JFIND_OUT_PATH = CACHE .. "/jfind_out"
@@ -61,13 +60,7 @@ local config = {
     tmux = false,
     windowBorder = true,
     exclude = {},
-
-    -- deprecated
-    formatPaths = false,
-    key = nil,
 }
-
-local warnedAboutDeprecation = false;
 
 local function ternary(cond, T, F)
     if cond then return T else return F end
@@ -231,36 +224,6 @@ local function jfind(opts)
     end
 end
 
--- this function mimics the old behaviour of the plugin and works with old jfind
--- this function will get deleted after people transition
-local function deprecatedJfind(opts)
-    if vim.fn.executable("jfind") == 0 then
-        print("jfind is not installed. " .. JFIND_GITHUB_URL)
-        return
-    end
-
-    local flags
-    if (opts.hints) then
-        flags = "--hints --select-hint"
-    else
-        flags = ""
-    end
-
-    local function onComplete()
-        local success, contents = pcall(vim.fn.readfile, JFIND_OUT_PATH)
-        if not success or #contents == 0 then
-            return
-        end
-        opts.callback(contents[1])
-    end
-
-    if config.tmux and vim.fn.exists("$TMUX") == 1 then
-        jfindTmuxPopup(opts.script, flags, opts.args, onComplete)
-    else
-        jfindNvimPopup(opts.script, flags, opts.args, onComplete)
-    end
-end
-
 local function findFile(opts)
     if opts == nil then opts = {} end
     if opts.callback == nil then opts.callback = vim.cmd.edit end
@@ -393,40 +356,9 @@ local function setup(opts)
         if opts.border ~= nil then config.border = opts.border end
         if opts.maxWidth ~= nil then config.maxWidth = opts.maxWidth end
         if opts.maxHeight ~= nil then config.maxHeight = opts.maxHeight end
-
-        -- deprecated
-        if opts.key ~= nil then config.key = opts.key end
-        if opts.formatPaths ~= nil then config.formatPaths = opts.formatPaths end
-        --
     end
 
     vim.fn.writefile(config.exclude, JFIND_EXCLUDES_PATH)
-
-    -- deprecated
-    if (config.key ~= nil) then
-        local keyMapped = vim.fn.maparg(config.key) ~= ""
-        if not keyMapped then
-            vim.keymap.set('n', config.key, function()
-                deprecatedJfind({
-                    script = JFIND_FILE_SCRIPT,
-                    args = {ternary(config.formatPaths, "true", "false")},
-                    hints = config.formatPaths,
-                    callback = function(result)
-                        vim.cmd.edit(result)
-                    end,
-                })
-                if not warnedAboutDeprecation then
-                    local warning =
-                        "jfind 1.0 has been released and your config is"
-                        .. " deprecated. Visit " .. JFIND_NVIM_GITHUB_URL
-                        .. " for new usage."
-                    print(warning)
-                    warnedAboutDeprecation = true
-                end
-            end)
-        end
-    end
-    --
 
 end
 
