@@ -63,7 +63,7 @@ jfind.setup({
         "*.iml",
         "*.meta"
     },
-    border = "rounded",
+    windowBorder = true,
     tmux = true,
 });
 
@@ -76,6 +76,9 @@ vim.keymap.set("n", "<c-f>", function()
     jfind.findFile({
         formatPaths = true,
         hidden = true,
+        queryPosition = "top",
+        preview = true,
+        previewPosition = "right",
         callback = {
             [key.DEFAULT] = vim.cmd.edit,
             [key.CTRL_S] = vim.cmd.split,
@@ -91,6 +94,8 @@ vim.keymap.set("n", "<leader><c-f>", function()
         hidden = true,             -- grep hidden files/directories
         caseSensitivity = "smart", -- sensitive, insensitive, smart
                                    --     will use vim settings by default
+        preview = true,
+        previewPosition = "top",
         callback = {
             [key.DEFAULT] = jfind.editGotoLine,
             [key.CTRL_B] = jfind.splitGotoLine,
@@ -196,6 +201,23 @@ local jfind = require("jfind")
 jfind.jfind({
     input = {"item one", "hint one", "item two", "hint two"},
     hints = true,
+    callback = function(result)
+        print("result: " .. result)
+    end
+})
+```
+
+### Preview
+You can run a command on the selected item and use the output as a preview for that item.
+You will need "figlet" to run the following example:
+
+```lua
+local jfind = require("jfind")
+
+jfind.jfind({
+    input = {1, 2, 3, 4, 5},
+    preview = "figlet",
+    previewPosition = "right",
     callback = function(result)
         print("result: " .. result)
     end
