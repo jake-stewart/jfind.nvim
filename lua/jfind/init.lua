@@ -241,7 +241,7 @@ local function findFile(opts)
     local preview = nil
     if opts.preview == true then
         preview = ternary(
-            vim.fn.executable("bat"),
+            vim.fn.executable("bat") == 1,
             "bat --color always --theme ansi --style plain",
             "cat"
         )
@@ -299,7 +299,7 @@ local function liveGrep(opts)
     local preview = nil
     if opts.preview == true then
         preview = ternary(
-            vim.fn.executable("bat"),
+            vim.fn.executable("bat") == 1,
             "bat --color always --theme ansi --style plain",
             "cat"
         )
