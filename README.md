@@ -6,36 +6,35 @@ Dependencies
 ------------
  - [jfind](https://github.com/jake-stewart/jfind) (Required)
  - [fdfind](https://github.com/sharkdp/fd) (Recommended as a faster alternative to `find`)
- - [ripgrep](https://github.com/BurntSushi/ripgrep) (Recommended as a faster alternative to `grep`)
 
 You can install jfind with this one liner. You will need git, cmake, and make.
 ```
 git clone https://github.com/jake-stewart/jfind && cd jfind && cmake -S . -B build && cd build && sudo make install
 ```
 
-**If you are migrating to 1.0 from an earlier version, make sure to recompile jfind!**
+**If you are migrating to 2.0 from an earlier version, make sure to recompile jfind!**
 
 Installation
 ------------
 
 #### [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
-{ "jake-stewart/jfind.nvim", branch = "1.0" }
+{ "jake-stewart/jfind.nvim", branch = "2.0" }
 ```
 
 #### [vim-plug](https://github.com/junegunn/vim-plug)
 ```vim
-Plug "jake-stewart/jfind.nvim", { "branch": "1.0" }
+Plug "jake-stewart/jfind.nvim", { "branch": "2.0" }
 ```
 
 #### [dein.vim](https://github.com/Shougo/dein.vim)
 ```vim
-call dein#add("jake-stewart/jfind.nvim", { "rev": "1.0" })
+call dein#add("jake-stewart/jfind.nvim", { "rev": "2.0" })
 ```
 
 #### [packer.nvim](wbthomason/packer.nvim)
 ```lua
-use { "jake-stewart/jfind.nvim", branch = "1.0" }
+use { "jake-stewart/jfind.nvim", branch = "2.0" }
 ```
 
 
@@ -64,7 +63,7 @@ jfind.setup({
         "*.iml",
         "*.meta"
     },
-    border = "rounded",
+    windowBorder = true,
     tmux = true,
 });
 
@@ -77,6 +76,9 @@ vim.keymap.set("n", "<c-f>", function()
     jfind.findFile({
         formatPaths = true,
         hidden = true,
+        queryPosition = "top",
+        preview = true,
+        previewPosition = "right",
         callback = {
             [key.DEFAULT] = vim.cmd.edit,
             [key.CTRL_S] = vim.cmd.split,
@@ -92,6 +94,8 @@ vim.keymap.set("n", "<leader><c-f>", function()
         hidden = true,             -- grep hidden files/directories
         caseSensitivity = "smart", -- sensitive, insensitive, smart
                                    --     will use vim settings by default
+        preview = true,
+        previewPosition = "top",
         callback = {
             [key.DEFAULT] = jfind.editGotoLine,
             [key.CTRL_B] = jfind.splitGotoLine,
@@ -107,9 +111,9 @@ end)
 |-|-|
 |`tmux`|a boolean of whether a tmux window is preferred over a neovim window. If tmux is not active, then this value is ignored. Default is `false`.|
 |`exclude`|a list of strings of files/directories that should be ignored. Entries can contain wildcard matching (e.g. `*.png`). Default is an empty list.|
-|`border`|The style of the border when not fullscreen. The default is `"single"`. Possible values include: <br>- `"none"`: No border.<br>- `"single"`: A single line box.<br>- `"double"`: A double line box.<br>- `"rounded"`: Like "single", but with rounded corners.<br>- `"solid"`: Adds padding by a single whitespace cell.<br>- `"shadow"`: A drop shadow effect by blending with the background.<br>- Or an array for a custom border. See `:h nvim_open_win` for details.|
 |`maxWidth`|An integer of how large in width the jfind can be as fullscreen until it becomes a popup window. default is `120`.|
 |`maxHeight`|An integer of how large in height the jfind can be as fullscreen until it becomes a popup window. default is `28`.|
+|`windowBorder`|A boolean of whether jfind should be surrounded with a border. Default is `true`.|
 
 
 Lua Jfind Interface
@@ -197,37 +201,42 @@ local jfind = require("jfind")
 jfind.jfind({
     input = {"item one", "hint one", "item two", "hint two"},
     hints = true,
-    callback = function(result, hint)
-        print("result: " .. result, "hint: " .. hint)
+    callback = function(result)
+        print("result: " .. result)
+    end
+})
+```
+
+### Preview
+You can run a command on the selected item and use the output as a preview for that item.
+You will need "figlet" to run the following example:
+
+```lua
+local jfind = require("jfind")
+
+jfind.jfind({
+    input = {1, 2, 3, 4, 5},
+    preview = "figlet",
+    previewPosition = "right",
+    callback = function(result)
+        print("result: " .. result)
     end
 })
 ```
 
 ### Wrapping the callbacks
 Sometimes it may be useful to wrap each callback in a function. This can save
-needing the same boilerplate for every callback. The following example is using 
-a snippet from the "Fuzzy finding open buffers" example.
+needing the same boilerplate for every callback.
 
 ```lua
 local jfind = require("jfind")
 local key = require("jfind.key")
 
--- without wrapper
 jfind.jfind({
     input = get_buffers(),
     hints = true,
-    callback = {
-        [key.DEFAULT] = function(_, path) vim.cmd.edit(path) end,
-        [key.CTRL_S] = function(_, path) vim.cmd.split(path) end,
-        [key.CTRL_V] = function(_, path) vim.cmd.vsplit(path) end,
-    }
-})
-
--- with wrapper
-jfind.jfind({
-    input = get_buffers(),
-    hints = true,
-    callbackWrapper = function(callback, _, path)
+    callbackWrapper = function(callback, path)
+        -- do something to path, and then call the provided callback
         callback(path)
     end,
     callback = {
@@ -265,9 +274,6 @@ end
 jfind.jfind({
     input = get_buffers(),
     hints = true,
-    callbackWrapper = function(callback, _, path)
-        callback(path)
-    end,
     callback = {
         [key.DEFAULT] = vim.cmd.edit,
         [key.CTRL_S] = vim.cmd.split,
