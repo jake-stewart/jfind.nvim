@@ -9,11 +9,13 @@ OUT="$CACHE/jfind_out"
 
 SCRIPT="$1"
 COMMAND="$2"
-PREVIEW="$3"
-PREVIEW_LINE="$4"
-HISTORY="$5"
-FLAGS="$6"
+QUERY="$3"
+PREVIEW="$4"
+PREVIEW_LINE="$5"
+HISTORY="$6"
+FLAGS="$7"
 
+shift
 shift
 shift
 shift
@@ -22,9 +24,9 @@ shift
 shift
 
 if [ -n "$COMMAND" ]; then
-    jfind $FLAGS --preview="$PREVIEW" --preview-line="$PREVIEW_LINE" --history="$HISTORY" --command="$COMMAND" > "$OUT" && exit 0
+    jfind $FLAGS --query="$QUERY" --preview="$PREVIEW" --preview-line="$PREVIEW_LINE" --history="$HISTORY" --command="$COMMAND" > "$OUT" && exit 0
 else
-    "$SCRIPT" "$@" | jfind --preview="$PREVIEW" --history="$HISTORY" --preview-line="$PREVIEW_LINE" $FLAGS > "$OUT" && exit 0
+    "$SCRIPT" "$@" | jfind --query="$QUERY" --preview="$PREVIEW" --history="$HISTORY" --preview-line="$PREVIEW_LINE" $FLAGS > "$OUT" && exit 0
 fi
 
 echo "An error ocurred. Press Enter to continue"

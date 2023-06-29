@@ -27,6 +27,7 @@ local LIVE_GREP_COMMANDS = {
         },
         showHidden = "--hidden",
         exclude = "--iglob=!",
+        include = "--iglob=",
     },
     grep = {
         fixed = "-F",
@@ -40,6 +41,8 @@ local LIVE_GREP_COMMANDS = {
         hideHidden = "*/.*",
         exclude = "--exclude=",
         excludeDir = "--excludeDir=",
+        include = "--include=",
+        includeDir = "--includeDir=",
     }
 }
 
@@ -66,7 +69,7 @@ local function ternary(cond, T, F)
     if cond then return T else return F end
 end
 
-local function jfindNvimPopup(script, command, preview, previewLine, history, flags, args, onComplete)
+local function jfindNvimPopup(script, command, query, preview, previewLine, history, flags, args, onComplete)
     local col = 0
     local row = 0
 
@@ -119,7 +122,7 @@ local function jfindNvimPopup(script, command, preview, previewLine, history, fl
     local win = vim.api.nvim_open_win(buf, 1, opts)
     vim.api.nvim_win_set_option(win, "winhl", "normal:normal")
 
-    local cmd = {PREPARE_JFIND_SCRIPT, script, command, preview, previewLine, history, flags}
+    local cmd = {PREPARE_JFIND_SCRIPT, script, command, query, preview, previewLine, history, flags}
     table.move(args, 1, #args, #cmd + 1, cmd)
 
     vim.fn.termopen(cmd, {on_exit = function(_, status, _)
@@ -131,7 +134,7 @@ local function jfindNvimPopup(script, command, preview, previewLine, history, fl
     vim.cmd.startinsert()
 end
 
-local function jfindTmuxPopup(script, command, preview, previewLine, history, flags, args, onComplete)
+local function jfindTmuxPopup(script, command, query, preview, previewLine, history, flags, args, onComplete)
     local cmd = {
         TMUX_POPUP_SCRIPT,
         config.maxWidth,
@@ -139,6 +142,7 @@ local function jfindTmuxPopup(script, command, preview, previewLine, history, fl
         PREPARE_JFIND_SCRIPT,
         script,
         command,
+        query,
         preview,
         previewLine,
         history,
@@ -221,11 +225,12 @@ local function jfind(opts)
     local args = ternary(opts.args, opts.args, {})
     local script = vim.fn.expand(opts.script)
     local command = ternary(opts.command, opts.command, "")
+    local query = ternary(opts.query, opts.query, "")
 
     if config.tmux and vim.fn.exists("$TMUX") == 1 then
-        jfindTmuxPopup(script, command, opts.preview, opts.previewLine, opts.history, flags, args, onComplete)
+        jfindTmuxPopup(script, command, query, opts.preview, opts.previewLine, opts.history, flags, args, onComplete)
     else
-        jfindNvimPopup(script, command, opts.preview, opts.previewLine, opts.history, flags, args, onComplete)
+        jfindNvimPopup(script, command, query, opts.preview, opts.previewLine, opts.history, flags, args, onComplete)
     end
 end
 
@@ -254,6 +259,7 @@ local function findFile(opts)
         args = {formatPaths, hidden},
         hints = opts.formatPaths,
         preview = preview,
+        query = opts.query,
         previewPosition = opts.previewPosition,
         queryPosition = opts.queryPosition,
         history = opts.history,
@@ -294,6 +300,7 @@ local function liveGrep(opts)
     if opts.history == false then opts.history = nil end
     if opts.callback == nil then opts.callback = editGotoLine end
     opts.exclude = opts.exclude or config.exclude or {}
+    opts.include = opts.include or {}
     if opts.preview == nil then opts.preview = true end
 
     local preview = nil
@@ -327,12 +334,19 @@ local function liveGrep(opts)
             table.insert(args, vim.fn.shellescape(flags.excludeDir .. v))
         end
     end
+    for _, v in pairs(opts.include) do
+        table.insert(args, vim.fn.shellescape(flags.include .. v))
+        if flags.includeDir then
+            table.insert(args, vim.fn.shellescape(flags.includeDir .. v))
+        end
+    end
 
     jfind({
         command = command .. " " .. table.concat(args, " ") .. LIVE_GREP_FMT,
         hints = true,
         previewLine = "\\d*$",
         preview = preview,
+        query = opts.query,
         callback = opts.callback,
         previewPosition = opts.previewPosition,
         history = opts.history,
