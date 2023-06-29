@@ -9,16 +9,20 @@ OUT="$CACHE/jfind_out"
 
 SCRIPT="$1"
 COMMAND="$2"
-FLAGS="$3"
+PREVIEW="$3"
+PREVIEW_LINE="$4"
+FLAGS="$5"
+
+shift
+shift
 shift
 shift
 shift
 
 if [ -n "$COMMAND" ]; then
-    # echo "[[$COMMAND]]" > ~/jfind-command
-    jfind $FLAGS --command="$COMMAND" > "$OUT" && exit 0
+    jfind $FLAGS --preview="$PREVIEW" --preview-line="$PREVIEW_LINE" --command="$COMMAND" > "$OUT" && exit 0
 else
-    "$SCRIPT" "$@" | jfind $FLAGS > "$OUT" && exit 0
+    "$SCRIPT" "$@" | jfind --preview="$PREVIEW" --preview-line="$PREVIEW_LINE" $FLAGS > "$OUT" && exit 0
 fi
 
 echo "An error ocurred. Press Enter to continue"

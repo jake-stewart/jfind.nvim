@@ -59,7 +59,7 @@ local config = {
     maxWidth = 120,
     maxHeight = 28,
     tmux = false,
-    border = "single",
+    windowBorder = true,
     exclude = {},
 
     -- deprecated
@@ -73,8 +73,7 @@ local function ternary(cond, T, F)
     if cond then return T else return F end
 end
 
-local function jfindNvimPopup(script, command, flags, args, onComplete)
-    local border = "none"
+local function jfindNvimPopup(script, command, preview, previewLine, flags, args, onComplete)
     local col = 0
     local row = 0
 
@@ -94,7 +93,6 @@ local function jfindNvimPopup(script, command, flags, args, onComplete)
             height = ternary(
                 vim.o.lines % 2, config.maxHeight - 1, config.maxHeight
             )
-            border = config.border
             col = (ui.width/2) - (width/2) - 1
             row = (ui.height/2) - (height/2) - 1
         else
@@ -114,7 +112,7 @@ local function jfindNvimPopup(script, command, flags, args, onComplete)
         row = row,
         anchor = "nw",
         style = "minimal",
-        border = border
+        border = "none"
     }
 
     -- some users may map escape to normal mode in a terminal buffer
@@ -124,7 +122,7 @@ local function jfindNvimPopup(script, command, flags, args, onComplete)
     local win = vim.api.nvim_open_win(buf, 1, opts)
     vim.api.nvim_win_set_option(win, "winhl", "normal:normal")
 
-    local cmd = {PREPARE_JFIND_SCRIPT, script, command, flags}
+    local cmd = {PREPARE_JFIND_SCRIPT, script, command, preview, previewLine, flags}
     table.move(args, 1, #args, #cmd + 1, cmd)
 
     vim.fn.termopen(cmd, {on_exit = function(_, status, _)
@@ -136,7 +134,7 @@ local function jfindNvimPopup(script, command, flags, args, onComplete)
     vim.cmd.startinsert()
 end
 
-local function jfindTmuxPopup(script, command, flags, args, onComplete)
+local function jfindTmuxPopup(script, command, preview, previewLine, flags, args, onComplete)
     local cmd = {
         TMUX_POPUP_SCRIPT,
         config.maxWidth,
@@ -144,6 +142,8 @@ local function jfindTmuxPopup(script, command, flags, args, onComplete)
         PREPARE_JFIND_SCRIPT,
         script,
         command,
+        preview,
+        previewLine,
         flags
     }
     table.move(args, 1, #args, #cmd + 1, cmd)
@@ -172,10 +172,22 @@ local function jfind(opts)
 
     local flags
     if (opts.hints) then
-        flags = "--show-key --hints --select-both"
+        flags = "--show-key --hints --select-hint"
     else
         flags = "--show-key"
     end
+    if config.windowBorder then
+        flags = flags .. " --external-border"
+    end
+    if opts.previewPosition then
+        flags = flags .. " --preview-position=" .. opts.previewPosition
+    end
+    if opts.queryPosition then
+        flags = flags .. " --query-position=" .. opts.queryPosition
+    end
+
+    if not opts.previewLine then opts.previewLine = "" end
+    if opts.preview == nil then opts.preview = "" end
 
     if type(opts.callback) == "table" then
         local keys = ""
@@ -202,9 +214,9 @@ local function jfind(opts)
             return
         end
         if (opts.callbackWrapper) then
-            opts.callbackWrapper(callback, contents[2], contents[3])
+            opts.callbackWrapper(callback, contents[2])
         else
-            callback(contents[2], contents[3])
+            callback(contents[2])
         end
     end
 
@@ -213,9 +225,9 @@ local function jfind(opts)
     local command = ternary(opts.command, opts.command, "")
 
     if config.tmux and vim.fn.exists("$TMUX") == 1 then
-        jfindTmuxPopup(script, command, flags, args, onComplete)
+        jfindTmuxPopup(script, command, opts.preview, opts.previewLine, flags, args, onComplete)
     else
-        jfindNvimPopup(script, command, flags, args, onComplete)
+        jfindNvimPopup(script, command, opts.preview, opts.previewLine, flags, args, onComplete)
     end
 end
 
@@ -229,7 +241,7 @@ local function deprecatedJfind(opts)
 
     local flags
     if (opts.hints) then
-        flags = "--hints --select-both"
+        flags = "--hints --select-hint"
     else
         flags = ""
     end
@@ -239,7 +251,7 @@ local function deprecatedJfind(opts)
         if not success or #contents == 0 then
             return
         end
-        opts.callback(contents[1], contents[2])
+        opts.callback(contents[1])
     end
 
     if config.tmux and vim.fn.exists("$TMUX") == 1 then
@@ -255,14 +267,24 @@ local function findFile(opts)
     if opts.hidden == nil then opts.hidden = true end
     local formatPaths = ternary(opts.formatPaths, "true", "false")
     local hidden = ternary(opts.hidden, "true", "false")
+    local preview
+    if opts.preview == true then
+        preview = ternary(
+            vim.fn.executable("bat"),
+            "bat --color always --theme ansi --style plain",
+            "cat"
+        )
+    elseif opts.preview then
+        preview = opts.preview
+    end
     jfind({
         script = JFIND_FILE_SCRIPT,
         args = {formatPaths, hidden},
         hints = opts.formatPaths,
+        preview = preview,
+        previewPosition = opts.previewPosition,
+        queryPosition = opts.queryPosition,
         callback = opts.callback,
-        callbackWrapper = function(callback, result, hint)
-            callback(ternary(opts.formatPaths, hint, result))
-        end
     })
 end
 
@@ -297,6 +319,23 @@ local function liveGrep(opts)
     end
     if opts.callback == nil then opts.callback = editGotoLine end
     opts.exclude = opts.exclude or config.exclude or {}
+    if opts.preview == nil then opts.preview = true end
+
+    local preview
+    if opts.preview == true then
+        preview = ternary(
+            vim.fn.executable("bat"),
+            "bat --color always --theme ansi --style plain",
+            "cat"
+        )
+    elseif opts.preview then
+        preview = opts.preview
+    else
+        preview = nil
+    end
+    if preview then
+        preview = preview .. " $(echo {} | awk -F: '{print $1}')"
+    end
 
     local command = ternary(vim.fn.executable("rg") == 1, "rg", "grep")
     local flags = LIVE_GREP_COMMANDS[command]
@@ -318,8 +357,12 @@ local function liveGrep(opts)
     jfind({
         command = command .. " " .. table.concat(args, " ") .. LIVE_GREP_FMT,
         hints = true,
+        previewLine = "\\d*$",
+        preview = preview,
         callback = opts.callback,
-        callbackWrapper = function(callback, _, result)
+        previewPosition = opts.previewPosition,
+        queryPosition = opts.queryPosition,
+        callbackWrapper = function(callback, result)
             local idx = string.find(result, ":[0-9]*$", 0, false)
             local filename = string.sub(result, 1, idx - 1)
             local lineNumber = string.sub(result, idx + 1)
@@ -368,12 +411,8 @@ local function setup(opts)
                     script = JFIND_FILE_SCRIPT,
                     args = {ternary(config.formatPaths, "true", "false")},
                     hints = config.formatPaths,
-                    callback = function(result, hint)
-                        if config.formatPaths then
-                            vim.cmd.edit(hint)
-                        else
-                            vim.cmd.edit(result)
-                        end
+                    callback = function(result)
+                        vim.cmd.edit(result)
                     end,
                 })
                 if not warnedAboutDeprecation then
