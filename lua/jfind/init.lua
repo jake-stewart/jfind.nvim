@@ -230,7 +230,8 @@ local function findFile(opts)
     if opts.hidden == nil then opts.hidden = true end
     local formatPaths = ternary(opts.formatPaths, "true", "false")
     local hidden = ternary(opts.hidden, "true", "false")
-    local preview
+
+    local preview = nil
     if opts.preview == true then
         preview = ternary(
             vim.fn.executable("bat"),
@@ -240,6 +241,7 @@ local function findFile(opts)
     elseif opts.preview then
         preview = opts.preview
     end
+
     jfind({
         script = JFIND_FILE_SCRIPT,
         args = {formatPaths, hidden},
@@ -284,7 +286,7 @@ local function liveGrep(opts)
     opts.exclude = opts.exclude or config.exclude or {}
     if opts.preview == nil then opts.preview = true end
 
-    local preview
+    local preview = nil
     if opts.preview == true then
         preview = ternary(
             vim.fn.executable("bat"),
@@ -293,9 +295,8 @@ local function liveGrep(opts)
         )
     elseif opts.preview then
         preview = opts.preview
-    else
-        preview = nil
     end
+
     if preview then
         preview = preview .. " $(echo {} | awk -F: '{print $1}')"
     end
