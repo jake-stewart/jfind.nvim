@@ -2,6 +2,8 @@ jfind.nvim
 ==========
 A plugin for using jfind as a neovim fuzzy finder.
 
+<img width="834" alt="Screenshot 2023-06-29 at 10 09 51 pm" src="https://github.com/jake-stewart/jfind.nvim/assets/83528263/7bf9d420-b596-4273-9d4b-95ac8dbc9752">
+
 Dependencies
 ------------
  - [jfind](https://github.com/jake-stewart/jfind) (Required)
