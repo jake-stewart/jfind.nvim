@@ -328,16 +328,16 @@ local function liveGrep(opts)
     else
         if flags.hideHidden then table.insert(args, flags.hideHidden) end
     end
-    for _, v in pairs(opts.exclude) do
-        table.insert(args, vim.fn.shellescape(flags.exclude .. v))
-        if flags.excludeDir then
-            table.insert(args, vim.fn.shellescape(flags.excludeDir .. v))
-        end
-    end
     for _, v in pairs(opts.include) do
         table.insert(args, vim.fn.shellescape(flags.include .. v))
         if flags.includeDir then
             table.insert(args, vim.fn.shellescape(flags.includeDir .. v))
+        end
+    end
+    for _, v in pairs(opts.exclude) do
+        table.insert(args, vim.fn.shellescape(flags.exclude .. v))
+        if flags.excludeDir then
+            table.insert(args, vim.fn.shellescape(flags.excludeDir .. v))
         end
     end
 
