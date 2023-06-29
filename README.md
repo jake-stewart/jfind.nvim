@@ -8,6 +8,8 @@ Dependencies
 ------------
  - [jfind](https://github.com/jake-stewart/jfind) (Required)
  - [fdfind](https://github.com/sharkdp/fd) (Recommended as a faster alternative to `find`)
+ - [ripgrep](https://github.com/BurntSushi/ripgrep) (Recommended as a faster alternative to `grep`)
+ - [bat](https://github.com/sharkdp/bat) (Recommended as a syntax highlighted alternative to `cat`)
 
 You can install jfind with this one liner. You will need git, cmake, and make.
 ```
