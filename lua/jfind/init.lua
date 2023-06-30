@@ -190,6 +190,7 @@ local function jfind(opts)
 
     if not opts.previewLine then opts.previewLine = "" end
     if opts.preview == nil then opts.preview = "" end
+    if opts.history == nil then opts.history = "" end
 
     if type(opts.callback) == "table" then
         local keys = ""
