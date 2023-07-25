@@ -363,6 +363,17 @@ local function liveGrep(opts)
             table.insert(args, vim.fn.shellescape(flags.excludeDir .. v))
         end
     end
+    if command == "rg" then
+        if opts.rgFlags then
+            for i = 1, #opts.rgFlags do
+                args[#args + 1] = opts.rgFlags[i]
+            end
+        end
+    elseif opts.grepFlags then
+        for i = 1, #opts.grepFlags do
+            args[#args + 1] = opts.grepFlags[i]
+        end
+    end
 
     jfind({
         command = command .. " " .. table.concat(args, " ") .. LIVE_GREP_FMT,
