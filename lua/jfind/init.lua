@@ -246,7 +246,13 @@ end
 
 local function findFile(opts)
     if opts == nil then opts = {} end
-    if opts.callback == nil then opts.callback = vim.cmd.edit end
+    if opts.callback == nil then
+        if opts.selectAll then
+            opts.callback = function(_) end
+        else
+            opts.callback = vim.cmd.edit
+        end
+    end
     if opts.hidden == nil then opts.hidden = true end
     if opts.history == nil then opts.history = "~/.cache/jfind_find_file_history" end
     if opts.history == false then opts.history = nil end
@@ -268,6 +274,7 @@ local function findFile(opts)
         script = JFIND_FILE_SCRIPT,
         args = {formatPaths, hidden},
         hints = opts.formatPaths,
+        selectAll = opts.selectAll,
         preview = preview,
         query = opts.query,
         previewPosition = opts.previewPosition,
@@ -308,7 +315,13 @@ local function liveGrep(opts)
     end
     if opts.history == nil then opts.history = "~/.cache/jfind_live_grep_history" end
     if opts.history == false then opts.history = nil end
-    if opts.callback == nil then opts.callback = editGotoLine end
+    if opts.callback == nil then
+        if opts.selectAll then
+            opts.callback = function(_) end
+        else
+            opts.callback = editGotoLine
+        end
+    end
     opts.exclude = opts.exclude or config.exclude or {}
     opts.include = opts.include or {}
     if opts.preview == nil then opts.preview = true end
@@ -358,14 +371,26 @@ local function liveGrep(opts)
         preview = preview,
         query = opts.query,
         callback = opts.callback,
+        selectAll = opts.selectAll,
         previewPosition = opts.previewPosition,
         history = opts.history,
         queryPosition = opts.queryPosition,
         callbackWrapper = function(callback, result)
-            local idx = string.find(result, ":[0-9]*$", 0, false)
-            local filename = string.sub(result, 1, idx - 1)
-            local lineNumber = string.sub(result, idx + 1)
-            callback(filename, lineNumber)
+            if (opts.selectAll) then
+                local results = {}
+                for i, v in pairs(result) do
+                    local idx = string.find(v, ":[0-9]*$", 0, false)
+                    local filename = string.sub(v, 1, idx - 1)
+                    local lineNumber = string.sub(v, idx + 1)
+                    results[i] = {filename, lineNumber}
+                end
+                callback(results)
+            else
+                local idx = string.find(result, ":[0-9]*$", 0, false)
+                local filename = string.sub(result, 1, idx - 1)
+                local lineNumber = string.sub(result, idx + 1)
+                callback(filename, lineNumber)
+            end
         end
     })
 end
