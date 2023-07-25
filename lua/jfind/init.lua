@@ -366,14 +366,16 @@ local function liveGrep(opts)
     if command == "rg" then
         if opts.rgFlags then
             for i = 1, #opts.rgFlags do
-                args[#args + 1] = opts.rgFlags[i]
+                table.insert(args, opts.rgFlags[i])
             end
         end
     elseif opts.grepFlags then
         for i = 1, #opts.grepFlags do
-            args[#args + 1] = opts.grepFlags[i]
+            table.insert(args, opts.grepFlags[i])
         end
     end
+
+    table.insert(args, "--")
 
     jfind({
         command = command .. " " .. table.concat(args, " ") .. LIVE_GREP_FMT,
