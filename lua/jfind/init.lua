@@ -178,6 +178,9 @@ local function jfind(opts)
     else
         flags = "--show-key"
     end
+    if (opts.selectAll) then
+        flags = flags .. " --select-all"
+    end
     if config.windowBorder then
         flags = flags .. " --external-border"
     end
@@ -190,7 +193,6 @@ local function jfind(opts)
 
     if not opts.previewLine then opts.previewLine = "" end
     if opts.preview == nil then opts.preview = "" end
-    if opts.history == nil then opts.history = "" end
 
     if type(opts.callback) == "table" then
         local keys = ""
@@ -216,10 +218,16 @@ local function jfind(opts)
         if (callback == nil) then
             return
         end
-        if (opts.callbackWrapper) then
-            opts.callbackWrapper(callback, contents[2])
+        local result;
+        if (opts.selectAll) then
+            result = {unpack(contents, 2, #contents)}
         else
-            callback(contents[2])
+            result = contents[2]
+        end
+        if (opts.callbackWrapper) then
+            opts.callbackWrapper(callback, result)
+        else
+            callback(result)
         end
     end
 
@@ -227,11 +235,12 @@ local function jfind(opts)
     local script = vim.fn.expand(opts.script)
     local command = ternary(opts.command, opts.command, "")
     local query = ternary(opts.query, opts.query, "")
+    local history = ternary(opts.history, opts.history, "")
 
     if config.tmux and vim.fn.exists("$TMUX") == 1 then
-        jfindTmuxPopup(script, command, query, opts.preview, opts.previewLine, opts.history, flags, args, onComplete)
+        jfindTmuxPopup(script, command, query, opts.preview, opts.previewLine, history, flags, args, onComplete)
     else
-        jfindNvimPopup(script, command, query, opts.preview, opts.previewLine, opts.history, flags, args, onComplete)
+        jfindNvimPopup(script, command, query, opts.preview, opts.previewLine, history, flags, args, onComplete)
     end
 end
 
