@@ -17,13 +17,15 @@ list_files() {
         exclude=$(cat "$EXCLUDES" 2>/dev/null \
             | sed "s/'/'\"'\"'/g" | awk "{printf \" -E '%s'\", "'$0}')
         [ "$1" = "true" ] && hiddenFlag="--hidden"
-        eval "$fd_command $hiddenFlag --type f $exclude"
+        flags=$2
+        eval "$fd_command $hiddenFlag --type f $exclude $flags"
     else
         exclude=$(cat "$EXCLUDES" 2>/dev/null \
             | sed "s/'/'\"'\"'/g" \
             | awk "{printf \" ! -path '*/%s/*' ! -iname '%s'\", "'$0, $0}')
         [ "$1" != "true" ] && hiddenFlag="-not -path '*/.*'"
-        eval "find '.' $hiddenFlag -type f $exclude"
+        flags=$2
+        eval "find '.' $hiddenFlag -type f $exclude $flags"
     fi
 }
 
@@ -39,8 +41,8 @@ format_files() {
 }
 
 if [ "$1" = "true" ]; then
-    list_files "$2" | format_files
+    list_files "$2" "$3" | format_files
 else
-    list_files "$2"
+    list_files "$2" "$3"
 fi
 
