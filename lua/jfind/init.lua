@@ -256,6 +256,7 @@ local function findFile(opts)
     if opts.hidden == nil then opts.hidden = true end
     if opts.history == nil then opts.history = "~/.cache/jfind_find_file_history" end
     if opts.history == false then opts.history = nil end
+    if type(opts.findFlags) ~= "table" then opts.findFlags = {} end
     local formatPaths = ternary(opts.formatPaths, "true", "false")
     local hidden = ternary(opts.hidden, "true", "false")
 
@@ -270,9 +271,14 @@ local function findFile(opts)
         preview = opts.preview
     end
 
+    local args = {formatPaths, hidden}
+    if (opts.findFlags ~= nil) then
+        table.insert(args, table.concat(opts.findFlags, " "))
+    end
+
     jfind({
         script = JFIND_FILE_SCRIPT,
-        args = {formatPaths, hidden},
+        args = args,
         hints = opts.formatPaths,
         selectAll = opts.selectAll,
         preview = preview,
@@ -281,6 +287,7 @@ local function findFile(opts)
         queryPosition = opts.queryPosition,
         history = opts.history,
         callback = opts.callback,
+        flags = opts.findFlags
     })
 end
 
