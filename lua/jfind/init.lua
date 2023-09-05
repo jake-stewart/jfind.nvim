@@ -184,6 +184,12 @@ local function jfind(opts)
     if config.windowBorder then
         flags = flags .. " --external-border"
     end
+    if opts.previewMinWidth then
+        flags = flags .. " --preview-min-width=" .. opts.previewMinWidth
+    end
+    if opts.previewPercent then
+        flags = flags .. " --preview-percent=" .. opts.previewPercent
+    end
     if opts.previewPosition then
         flags = flags .. " --preview-position=" .. opts.previewPosition
     end
