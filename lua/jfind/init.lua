@@ -290,6 +290,8 @@ local function findFile(opts)
         preview = preview,
         query = opts.query,
         previewPosition = opts.previewPosition,
+        previewPercent = opts.previewPercent,
+        previewMinWidth = opts.previewMinWidth,
         queryPosition = opts.queryPosition,
         history = opts.history,
         callback = opts.callback,
@@ -399,6 +401,8 @@ local function liveGrep(opts)
         callback = opts.callback,
         selectAll = opts.selectAll,
         previewPosition = opts.previewPosition,
+        previewPercent = opts.previewPercent,
+        previewMinWidth = opts.previewMinWidth,
         history = opts.history,
         queryPosition = opts.queryPosition,
         callbackWrapper = function(callback, result)
