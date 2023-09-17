@@ -119,14 +119,19 @@ local function jfindNvimPopup(script, command, query, preview, previewLine, hist
     vim.api.nvim_buf_set_keymap(buf, "t", "<bs>", "<bs>", {noremap = true})
     vim.api.nvim_buf_set_keymap(buf, "t", "<cr>", "<cr>", {noremap = true})
 
-    local win = vim.api.nvim_open_win(buf, 1, opts)
+    local win = vim.api.nvim_open_win(buf, true, opts)
     vim.api.nvim_win_set_option(win, "winhl", "normal:normal")
 
-    local cmd = {PREPARE_JFIND_SCRIPT, script, command, query, preview, previewLine, history, flags}
-    table.move(args, 1, #args, #cmd + 1, cmd)
+    local cmd = {
+        PREPARE_JFIND_SCRIPT, script, command, query,
+        preview, previewLine, history, flags
+    }
+    for i = 1, #args do
+        table.insert(cmd, args[i])
+    end
 
     vim.fn.termopen(cmd, {on_exit = function(_, status, _)
-        vim.api.nvim_win_close(win, 0)
+        vim.api.nvim_win_close(win, false)
         if status == 0 then
             onComplete()
         end
@@ -148,7 +153,10 @@ local function jfindTmuxPopup(script, command, query, preview, previewLine, hist
         history,
         flags
     }
-    table.move(args, 1, #args, #cmd + 1, cmd)
+    for i = 1, #args do
+        table.insert(cmd, args[i])
+    end
+
     vim.fn.system(cmd);
     if vim.v.shell_error == 0 then
         onComplete()
@@ -253,11 +261,9 @@ end
 local function findFile(opts)
     if opts == nil then opts = {} end
     if opts.callback == nil then
-        if opts.selectAll then
-            opts.callback = function(_) end
-        else
-            opts.callback = vim.cmd.edit
-        end
+        opts.callback = opts.selectAll
+            and function(_) end
+            or vim.cmd.edit
     end
     if opts.hidden == nil then opts.hidden = true end
     if opts.history == nil then opts.history = "~/.cache/jfind_find_file_history" end
@@ -330,13 +336,9 @@ local function liveGrep(opts)
     end
     if opts.history == nil then opts.history = "~/.cache/jfind_live_grep_history" end
     if opts.history == false then opts.history = nil end
-    if opts.callback == nil then
-        if opts.selectAll then
-            opts.callback = function(_) end
-        else
-            opts.callback = editGotoLine
-        end
-    end
+    opts.callback = opts.selectAll
+        and function(_) end
+        or vim.cmd.edit
     opts.exclude = opts.exclude or config.exclude or {}
     opts.include = opts.include or {}
     if opts.preview == nil then opts.preview = true end
