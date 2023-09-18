@@ -184,11 +184,9 @@ local function jfind(opts)
         return
     end
 
-    local flags
+    local flags = ""
     if (opts.hints) then
-        flags = "--show-key --hints --select-hint"
-    else
-        flags = "--show-key"
+        flags = "--hints --select-hint"
     end
     if (opts.selectAll) then
         flags = flags .. " --select-all"
@@ -217,11 +215,7 @@ local function jfind(opts)
         for k, _ in pairs(opts.callback) do
             keys = keys .. k .. ","
         end
-        flags = flags .. " --additional-keys=" .. keys
-    else
-        opts.callback = {
-            [0] = opts.callback
-        }
+        flags = flags .. " --show-key --additional-keys=" .. keys
     end
 
     local function onComplete()
@@ -229,18 +223,30 @@ local function jfind(opts)
         if not success or #contents == 0 then
             return
         end
-        local callback = opts.callback[tonumber(contents[1])]
-        if (callback == nil) then
-            callback = opts.callback[0]
+        local callback
+        local idx
+        local result;
+        if type(opts.callback) == "table" then
+            callback = opts.callback[tonumber(contents[1])]
+            if (callback == nil) then
+                callback = opts.callback[0]
+            end
+            idx = 2
+        else
+            callback = opts.callback
+            idx = 1
         end
         if (callback == nil) then
             return
         end
-        local result;
+
         if (opts.selectAll) then
-            result = {unpack(contents, 2, #contents)}
+            result = {}
+            for i = idx, #contents do
+                table.insert(result, contents[i])
+            end
         else
-            result = contents[2]
+            result = contents[idx]
         end
         if (opts.callbackWrapper) then
             opts.callbackWrapper(callback, result)
@@ -264,11 +270,11 @@ end
 
 local function findFile(opts)
     if opts == nil then opts = {} end
+
     if opts.callback == nil then
-        opts.callback = opts.selectAll
-            and function(_) end
-            or vim.cmd.edit
+        opts.callback = vim.cmd.edit
     end
+
     if opts.hidden == nil then opts.hidden = true end
     if opts.history == nil then opts.history = "~/.cache/jfind_find_file_history" end
     if opts.history == false then opts.history = nil end
@@ -296,7 +302,6 @@ local function findFile(opts)
         script = JFIND_FILE_SCRIPT,
         args = args,
         hints = opts.formatPaths,
-        selectAll = opts.selectAll,
         preview = preview,
         query = opts.query,
         previewPosition = opts.previewPosition,
@@ -340,9 +345,9 @@ local function liveGrep(opts)
     end
     if opts.history == nil then opts.history = "~/.cache/jfind_live_grep_history" end
     if opts.history == false then opts.history = nil end
-    opts.callback = opts.selectAll
-        and function(_) end
-        or vim.cmd.edit
+    if opts.callback == nil then
+        opts.callback = editGotoLine
+    end
     opts.exclude = opts.exclude or config.exclude or {}
     opts.include = opts.include or {}
     if opts.preview == nil then opts.preview = true end
