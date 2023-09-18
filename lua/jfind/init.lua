@@ -131,7 +131,11 @@ local function jfindNvimPopup(script, command, query, preview, previewLine, hist
     end
 
     vim.fn.termopen(cmd, {on_exit = function(_, status, _)
-        vim.api.nvim_win_close(win, false)
+        -- pcall in case the window is already closed
+        -- this can happen due to plugins such as nvchad-term
+        pcall(function()
+            vim.api.nvim_win_close(win, false)
+        end)
         if status == 0 then
             onComplete()
         end
