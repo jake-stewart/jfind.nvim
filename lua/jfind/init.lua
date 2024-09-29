@@ -168,6 +168,11 @@ local function jfindTmuxPopup(script, command, query, preview, previewLine, hist
 end
 
 local function jfind(opts)
+    local success, mc = pcall(require, "multicursor-nvim")
+    if success then
+        mc.clearCursors()
+    end
+
     if (opts.input ~= nil) then
         vim.fn.writefile(opts.input, JFIND_INPUT_PATH)
         opts.args = {JFIND_INPUT_PATH}
@@ -269,6 +274,10 @@ local function jfind(opts)
 end
 
 local function findFile(opts)
+    local success, mc = pcall(require, "multicursor-nvim")
+    if success then
+        mc.clearCursors()
+    end
     if opts == nil then opts = {} end
 
     if opts.callback == nil then
@@ -337,6 +346,11 @@ local function getDefaultCaseSensitivity()
 end
 
 local function liveGrep(opts)
+    local success, mc = pcall(require, "multicursor-nvim")
+    if success then
+        mc.clearCursors()
+    end
+
     if opts == nil then opts = {} end
     if opts.hidden == nil then opts.hidden = true end
     if opts.fixed == nil then opts.fixed = false end
